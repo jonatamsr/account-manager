@@ -13,6 +13,5 @@
 |
 */
 
-$router->get('/', function () use ($router) {
-    return $router->app->version();
-});
+$router->get('/', fn () => 'Api is up!');
+$router->get('/balance', 'AccountController@getBalance');
