@@ -3,12 +3,11 @@
 namespace Tests\Unit\Controllers;
 
 use Illuminate\Http\Response;
-use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class AccountControllerUnitTest extends TestCase
 {
-    #[DataProvider('dataProviderForGetBalance')]
+    /** @dataProvider dataProviderForGetBalance */
     public function testGetBalance($accountId, $expectedStatusCode, $expectedJson): void
     {
         $this->get("balance?account_id=$accountId")
