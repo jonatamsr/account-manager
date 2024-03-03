@@ -1,6 +1,8 @@
 <?php
 
-/** @var \Laravel\Lumen\Routing\Router $router */
+use Laravel\Lumen\Routing\Router;
+
+/** @var Router $router */
 
 /*
 |--------------------------------------------------------------------------
@@ -13,5 +15,9 @@
 |
 */
 
+
 $router->get('/', fn () => 'Api is up!');
+
 $router->get('/balance', 'AccountController@getBalance');
+
+$router->post('/reset', 'MaintenanceController@reset');
