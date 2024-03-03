@@ -23,7 +23,10 @@ class SetupInitialAccountMiddleware
     {
         Cache::set(
             AccountEnum::ACCOUNT_CACHE_KEY . self::DEFAULT_ACCOUNT_ID,
-            self::DEFAULT_ACCOUNT_INITIAL_BALANCE
+            [
+                'id' => self::DEFAULT_ACCOUNT_ID,
+                'balance' => self::DEFAULT_ACCOUNT_INITIAL_BALANCE,
+            ]
         );
 
         return $next($request);
