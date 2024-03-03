@@ -75,9 +75,9 @@ $app->configure('app');
 //     App\Http\Middleware\ExampleMiddleware::class
 // ]);
 
-// $app->routeMiddleware([
-//     'auth' => App\Http\Middleware\Authenticate::class,
-// ]);
+ $app->middleware([
+     App\Http\Middleware\SetupInitialAccountMiddleware::class
+ ]);
 
 /*
 |--------------------------------------------------------------------------
