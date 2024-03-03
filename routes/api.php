@@ -20,4 +20,4 @@ $router->get('/', fn () => 'Api is up!');
 
 $router->get('/balance', 'AccountController@getBalance');
 
-$router->post('/reset', 'MaintenanceController@reset');
+$router->post('/reset', 'MaintenanceController@resetCache');

@@ -9,7 +9,7 @@ use Laravel\Lumen\Routing\Controller;
 
 class MaintenanceController extends Controller
 {
-    public function reset(): JsonResponse
+    public function resetCache(): JsonResponse
     {
         Cache::clear();
 
