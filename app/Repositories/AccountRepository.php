@@ -14,7 +14,7 @@ class AccountRepository
         // TODO: Exchange this with eloquent model ->firstOrFail() method after database is implemented
         throw_if(
             $id !== self::DEFAULT_ACCOUNT,
-            new ModelNotFoundException('Model not found', Response::HTTP_NOT_FOUND)
+            new ModelNotFoundException('Model not found.', Response::HTTP_NOT_FOUND)
         );
 
         return 20;
