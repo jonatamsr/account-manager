@@ -2,7 +2,9 @@
 
 namespace Tests\Integration\Controllers;
 
+use App\Enums\AccountEnum;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
 
 class AccountControllerIntegrationTest extends TestCase
@@ -10,6 +12,14 @@ class AccountControllerIntegrationTest extends TestCase
     /** @dataProvider dataProviderForGetBalance */
     public function testGetBalance($accountId, $expectedStatusCode, $expectedJson): void
     {
+        Cache::add(
+            AccountEnum::ACCOUNT_CACHE_KEY . 100,
+            [
+                'id' => 100,
+                'balance' => 20,
+            ]
+        );
+
         $this->get("balance?account_id=$accountId")
             ->seeStatusCode($expectedStatusCode)
             ->seeJson($expectedJson);

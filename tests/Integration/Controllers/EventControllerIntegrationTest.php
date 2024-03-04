@@ -64,6 +64,13 @@ class EventControllerIntegrationTest extends TestCase
     public function testWithdrawMustDecreaseAccountBalanceAndReturn(): void
     {
         $originAccountId = 100;
+        Cache::add(
+            AccountEnum::ACCOUNT_CACHE_KEY . $originAccountId,
+            [
+                'id' => $originAccountId,
+                'balance' => 20,
+            ]
+        );
 
         $payload = [
             'type' => 'withdraw',
