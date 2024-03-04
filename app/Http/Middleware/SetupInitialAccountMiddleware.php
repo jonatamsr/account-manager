@@ -21,7 +21,7 @@ class SetupInitialAccountMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        Cache::set(
+        Cache::add(
             AccountEnum::ACCOUNT_CACHE_KEY . self::DEFAULT_ACCOUNT_ID,
             [
                 'id' => self::DEFAULT_ACCOUNT_ID,

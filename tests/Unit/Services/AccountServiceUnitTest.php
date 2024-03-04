@@ -9,7 +9,6 @@ use Tests\TestCase;
 
 class AccountServiceUnitTest extends TestCase
 {
-    // TODO: This unit test can be improved after database is implemented
     public function testGetBalanceMustReturnTwelveWhenAccountIdIsOneHundred(): void
     {
         $accountId = 100;
