@@ -60,4 +60,56 @@ class EventControllerIntegrationTest extends TestCase
             ->seeStatusCode(Response::HTTP_CREATED)
             ->seeJson($expectedResponse);
     }
+
+    public function testWithdrawMustDecreaseAccountBalanceAndReturn(): void
+    {
+        $originAccountId = 100;
+
+        $payload = [
+            'type' => 'withdraw',
+            'origin' => $originAccountId,
+            'amount' => 5,
+        ];
+
+        $expectedResponse = [
+            'origin' => [
+                'id' => $originAccountId,
+                'balance' => 15,
+            ],
+        ];
+
+        $this->post('event', $payload)
+            ->seeStatusCode(Response::HTTP_CREATED)
+            ->seeJson($expectedResponse);
+    }
+
+    public function testWithdrawMustThrowExceptionWhenInformedAccountDoesNotExist(): void
+    {
+        $originAccountId = -1;
+
+        $payload = [
+            'type' => 'withdraw',
+            'origin' => $originAccountId,
+            'amount' => 5,
+        ];
+
+        $this->post('event', $payload)
+            ->seeStatusCode(Response::HTTP_NOT_FOUND)
+            ->seeJson([0]);
+    }
+
+    public function testDispatchEventMustThrowValidationErrorWhenTypeNotInformed(): void
+    {
+        $originAccountId = 100;
+
+        $payload = [
+            'type' => '',
+            'origin' => $originAccountId,
+            'amount' => 5,
+        ];
+
+        $this->post('event', $payload)
+            ->seeStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY)
+            ->seeJson(["type" => ["The type field is required."]]);
+    }
 }

@@ -3,6 +3,7 @@
 namespace Tests\Unit\Repositories;
 
 use App\Dtos\Events\DepositDto;
+use App\Dtos\Events\WithdrawDto;
 use App\Enums\AccountEnum;
 use App\Repositories\AccountRepository;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -76,5 +77,45 @@ class AccountRepositoryUnitTest extends TestCase
         $result = AccountRepository::deposit($depositDto);
 
         $this->assertEquals(150, $result);
+    }
+
+    public function testWithdrawMustDecreaseExistentAccountBalanceAndReturnNewBalance(): void
+    {
+        $accountId = 100;
+
+        Cache::add(
+            AccountEnum::ACCOUNT_CACHE_KEY . $accountId,
+            [
+                'id' => $accountId,
+                'balance' => 20,
+            ]
+        );
+
+        $withdrawDto = new WithdrawDto();
+        $withdrawDto->attachValues([
+            'origin' => $accountId,
+            'amount' => 5,
+        ]);
+
+        $result = AccountRepository::withdraw($withdrawDto);
+
+        $this->assertEquals(15, $result);
+    }
+
+    public function testWithdrawMustThrowModelNotFoundExceptionWhenInformedAccountDoesNotExist(): void
+    {
+        $accountId = -1;
+
+        $withdrawDto = new WithdrawDto();
+        $withdrawDto->attachValues([
+            'origin' => $accountId,
+            'amount' => 5,
+        ]);
+
+        $this->expectException(ModelNotFoundException::class);
+        $this->expectExceptionCode(Response::HTTP_NOT_FOUND);
+        $this->expectExceptionMessage('Model not found.');
+
+        AccountRepository::withdraw($withdrawDto);
     }
 }
