@@ -2,8 +2,11 @@
 
 namespace App\Repositories;
 
+use App\Dtos\Events\DepositDto;
+use App\Enums\AccountEnum;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Cache;
 
 class AccountRepository
 {
@@ -18,5 +21,34 @@ class AccountRepository
         );
 
         return 20;
+    }
+
+    public static function deposit(DepositDto $dto): float
+    {
+        $existingAccount = Cache::get(AccountEnum::ACCOUNT_CACHE_KEY . $dto->destination);
+        if (is_null($existingAccount)) {
+            self::create($dto);
+
+            return $dto->amount;
+        }
+
+        $newBalance = $existingAccount['balance'] + $dto->amount;
+        Cache::set(
+            AccountEnum::ACCOUNT_CACHE_KEY . $dto->destination,
+            ['balance' => $newBalance]
+        );
+
+        return $newBalance;
+    }
+
+    public static function create(DepositDto $dto): void
+    {
+        Cache::set(
+            AccountEnum::ACCOUNT_CACHE_KEY . $dto->destination,
+            [
+                'id' => $dto->destination,
+                'balance' => $dto->amount,
+            ]
+        );
     }
 }
