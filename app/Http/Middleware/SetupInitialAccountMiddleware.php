@@ -9,8 +9,8 @@ use Illuminate\Support\Facades\Cache;
 
 class SetupInitialAccountMiddleware
 {
-    private const DEFAULT_ACCOUNT_ID = 100;
-    private const DEFAULT_ACCOUNT_INITIAL_BALANCE = 20;
+    private const DEFAULT_ACCOUNT_ID = 300;
+    private const DEFAULT_DESTINATION_ACCOUNT_INITIAL_BALANCE = 0;
 
     /**
      * Handle an incoming request.
@@ -25,7 +25,7 @@ class SetupInitialAccountMiddleware
             AccountEnum::ACCOUNT_CACHE_KEY . self::DEFAULT_ACCOUNT_ID,
             [
                 'id' => self::DEFAULT_ACCOUNT_ID,
-                'balance' => self::DEFAULT_ACCOUNT_INITIAL_BALANCE,
+                'balance' => self::DEFAULT_DESTINATION_ACCOUNT_INITIAL_BALANCE,
             ]
         );
 
