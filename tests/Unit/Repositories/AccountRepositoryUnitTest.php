@@ -3,6 +3,7 @@
 namespace Tests\Unit\Repositories;
 
 use App\Dtos\Events\DepositDto;
+use App\Dtos\Events\TransferDto;
 use App\Dtos\Events\WithdrawDto;
 use App\Enums\AccountEnum;
 use App\Repositories\AccountRepository;
@@ -117,5 +118,100 @@ class AccountRepositoryUnitTest extends TestCase
         $this->expectExceptionMessage('Model not found.');
 
         AccountRepository::withdraw($withdrawDto);
+    }
+
+    public function testTransferMustUpdateOriginAndDestinationBalancesAndReturnNewBalances(): void
+    {
+        $originAccountId = 200;
+        Cache::add(
+            AccountEnum::ACCOUNT_CACHE_KEY . $originAccountId,
+            [
+                'id' => $originAccountId,
+                'balance' => 1000,
+            ]
+        );
+
+        $destinationAccountId = 300;
+        Cache::add(
+            AccountEnum::ACCOUNT_CACHE_KEY . $destinationAccountId,
+            [
+                'id' => $destinationAccountId,
+                'balance' => 2000,
+            ]
+        );
+
+        $transferDto = new TransferDto();
+        $transferDto->attachValues([
+            'origin' => $originAccountId,
+            'amount' => 500,
+            'destination' => $destinationAccountId,
+        ]);
+
+        $result = AccountRepository::transfer($transferDto);
+
+        $expectedResult = [
+            'origin' => [
+                'balance' => 500.0,
+            ],
+            'destination' => [
+                'balance' => 2500.0,
+            ],
+        ];
+
+        $this->assertEquals($expectedResult, $result);
+    }
+
+    public function testTransferMustThrowNotFoundUpdateWhenOriginAccountDoesNotExist(): void
+    {
+        $originAccountId = -1;
+
+        $destinationAccountId = 300;
+        Cache::add(
+            AccountEnum::ACCOUNT_CACHE_KEY . $destinationAccountId,
+            [
+                'id' => $destinationAccountId,
+                'balance' => 2000,
+            ]
+        );
+
+        $transferDto = new TransferDto();
+        $transferDto->attachValues([
+            'origin' => $originAccountId,
+            'amount' => 500,
+            'destination' => $destinationAccountId,
+        ]);
+
+        $this->expectException(ModelNotFoundException::class);
+        $this->expectExceptionCode(Response::HTTP_NOT_FOUND);
+        $this->expectExceptionMessage('Model not found.');
+
+        AccountRepository::transfer($transferDto);
+    }
+
+    public function testTransferMustThrowNotFoundUpdateWhenDestinationAccountDoesNotExist(): void
+    {
+        $originAccountId = 200;
+        Cache::add(
+            AccountEnum::ACCOUNT_CACHE_KEY . $originAccountId,
+            [
+                'id' => $originAccountId,
+                'balance' => 1000,
+            ]
+        );
+
+        $destinationAccountId = -1;
+
+        $transferDto = new TransferDto();
+        $transferDto->attachValues([
+            'origin' => $originAccountId,
+            'amount' => 500,
+            'destination' => $destinationAccountId,
+        ]);
+
+        $this->expectException(ModelNotFoundException::class);
+        $this->expectExceptionCode(Response::HTTP_NOT_FOUND);
+        $this->expectExceptionMessage('Model not found.');
+
+        AccountRepository::transfer($transferDto);
     }
 }

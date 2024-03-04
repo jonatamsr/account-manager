@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Dtos\Events\DepositDto;
+use App\Dtos\Events\TransferDto;
 use App\Dtos\Events\WithdrawDto;
 use App\Services\EventService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -16,6 +17,7 @@ class EventController extends Controller
     private const EVENT_DTO_BY_TYPE = [
         'deposit' => DepositDto::class,
         'withdraw' => WithdrawDto::class,
+        'transfer' => TransferDto::class,
     ];
 
     public function dispatchEvent(Request $request): JsonResponse
