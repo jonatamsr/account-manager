@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Dtos\Events\DepositDto;
+use App\Dtos\Events\WithdrawDto;
 use App\Enums\AccountEnum;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Response;
@@ -48,5 +49,22 @@ class AccountRepository
                 'balance' => $dto->amount,
             ]
         );
+    }
+
+    public static function withdraw(WithdrawDto $dto): float
+    {
+        $account = Cache::get(AccountEnum::ACCOUNT_CACHE_KEY . $dto->origin);
+        throw_if(
+            is_null($account),
+            new ModelNotFoundException('Model not found.', Response::HTTP_NOT_FOUND)
+        );
+
+        $newBalance = $account['balance'] - $dto->amount;
+        Cache::set(
+            AccountEnum::ACCOUNT_CACHE_KEY . $dto->origin,
+            ['balance' => $newBalance]
+        );
+
+        return $newBalance;
     }
 }
