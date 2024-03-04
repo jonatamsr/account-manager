@@ -10,17 +10,15 @@ use Illuminate\Support\Facades\Cache;
 
 class AccountRepository
 {
-    private const DEFAULT_ACCOUNT = 100;
-
     public static function getBalance(int $id): float
     {
-        // TODO: Exchange this with eloquent model ->firstOrFail() method after database is implemented
+        $account = Cache::get(AccountEnum::ACCOUNT_CACHE_KEY . $id);
         throw_if(
-            $id !== self::DEFAULT_ACCOUNT,
+            is_null($account),
             new ModelNotFoundException('Model not found.', Response::HTTP_NOT_FOUND)
         );
 
-        return 20;
+        return $account['balance'];
     }
 
     public static function deposit(DepositDto $dto): float

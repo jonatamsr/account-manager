@@ -16,6 +16,14 @@ class AccountRepositoryUnitTest extends TestCase
     {
         $accountId = 100;
 
+        Cache::add(
+            AccountEnum::ACCOUNT_CACHE_KEY . $accountId,
+            [
+                'id' => $accountId,
+                'balance' => 20,
+            ]
+        );
+
         $result = AccountRepository::getBalance($accountId);
 
         $this->assertEquals(20, $result);
