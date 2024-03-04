@@ -2,7 +2,7 @@
 
 A project designed for monetary accounts management.
 
-## Setup do projeto
+## Setup
 
 1. Install dependencies: composer install
 2. Start serving: php -S localhost:8000 -t public
