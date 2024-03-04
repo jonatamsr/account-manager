@@ -3,11 +3,10 @@
 namespace Tests\Unit\Services;
 
 use App\Dtos\Events\DepositDto;
+use App\Dtos\Events\TransferDto;
 use App\Dtos\Events\WithdrawDto;
 use App\Enums\AccountEnum;
 use App\Services\EventService;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
 
@@ -42,7 +41,7 @@ class EventServiceUnitTest extends TestCase
     {
         $destinationAccountId = 1;
 
-        Cache::set(
+        Cache::add(
             AccountEnum::ACCOUNT_CACHE_KEY . $destinationAccountId,
             [
                 'id' => $destinationAccountId,
@@ -75,7 +74,7 @@ class EventServiceUnitTest extends TestCase
     {
         $originAccountId = 1;
 
-        Cache::set(
+        Cache::add(
             AccountEnum::ACCOUNT_CACHE_KEY . $originAccountId,
             [
                 'id' => $originAccountId,
@@ -104,23 +103,49 @@ class EventServiceUnitTest extends TestCase
         $this->assertEquals($expectedResult, $result);
     }
 
-    public function testWithdrawMustThrowModelNotFoundExceptionWhenAccountIdDoesNotExist(): void
+    public function testTransferMustReturnFormattedResponse(): void
     {
-        $originAccountId = -1;
+        $originAccountId = 200;
+        Cache::add(
+            AccountEnum::ACCOUNT_CACHE_KEY . $originAccountId,
+            [
+                'id' => $originAccountId,
+                'balance' => 1000,
+            ]
+        );
 
-        $withdrawDto = new WithdrawDto();
-        $withdrawDto->attachValues([
-            'origin' => $originAccountId,
-            'amount' => 5,
-        ]);
+        $destinationAccountId = 300;
+        Cache::add(
+            AccountEnum::ACCOUNT_CACHE_KEY . $destinationAccountId,
+            [
+                'id' => $destinationAccountId,
+                'balance' => 2000,
+            ]
+        );
 
         /** @var EventService $service */
         $service = app(EventService::class);
 
-        $this->expectException(ModelNotFoundException::class);
-        $this->expectExceptionCode(Response::HTTP_NOT_FOUND);
-        $this->expectExceptionMessage('Model not found.');
+        $transferDto = new TransferDto();
+        $transferDto->attachValues([
+            'origin' => $originAccountId,
+            'amount' => 500,
+            'destination' => $destinationAccountId,
+        ]);
 
-        $service->withdraw($withdrawDto);
+        $result = $service->transfer($transferDto);
+
+        $expectedResult = [
+            'origin' => [
+                'id' => $originAccountId,
+                'balance' => 500,
+            ],
+            'destination' => [
+                'id' => $destinationAccountId,
+                'balance' => 2500,
+            ],
+        ];
+
+        $this->assertEquals($expectedResult, $result);
     }
 }
